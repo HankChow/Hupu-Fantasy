@@ -38,6 +38,13 @@ def get_current_roomid():
     url = 'https://fantasy.hupu.com/api/schedule/normal'
     r = requests.post(url, headers=HEADER)
     j = json.loads(r.text)
+    status_code = int(j['status']['code'])
+    if status_code != 200:
+        if status_code == 401:
+            print('Cookie 设置错误。')
+            exit()
+        print('启动失败。')
+        exit()
     for i in j['normal_games']:
         if i['name'] == '金豆专场':
             return i['id']
