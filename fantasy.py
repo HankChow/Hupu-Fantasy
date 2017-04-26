@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 
+import configparser
 import json
 import os
 import requests
@@ -8,29 +9,6 @@ import sys
 import time
 
 from prettytable import PrettyTable
-
-
-MIN_SALARY_SUM = 115 # 队内薪资总和下限
-MAX_SALARY_SUM = 120 # 队内薪资总和上限
-MIN_SALARY = 0 # 队内单人薪资下限
-MAX_SALARY = 0 # 队内单人薪资上限
-MAX_SALARY_DIFF = 0 # 队内最大工资差
-MIN_SCORE = 110 # 预期评分下限
-MIN_PLAYTIME = 0 # 上场时间下限
-SHOW_PLAYERS_AMOUNT = 10 # 展示推荐条数
-
-ROOM_ID = 0 # 若为0则显示当天推荐，为特定数值时显示历史推荐
-AVOID_PLAYERS = [] # 计划规避的球员
-PRESERVE_PLAYERS = [] # 计划保留的球员
-
-ORDER_BY = 0 # 排序依据（0为预计总评分，1为预计总上场时间，2为总效率(评分/上场时间)，3为总ability）
-
-USE_PRETTYTABLE = 1 # 是否优化显示格式
-SHOW_HISTORY_SCORE = 1 # 是否显示历史评分
-
-HEADER = {
-    'Cookie': ''
-}
 
 
 # 获取当天金豆场房间id
@@ -179,7 +157,46 @@ def unique(lst):
     return newlst
 
 
+# 加载配置文件
+def load_configuration():
+    global MIN_SALARY_SUM
+    global MAX_SALARY_SUM
+    global MIN_SALARY
+    global MAX_SALARY
+    global MAX_SALARY_DIFF
+    global MIN_SCORE
+    global MIN_PLAYTIME
+    global AVOID_PLAYERS
+    global PRESERVE_PLAYERS
+    global SHOW_PLAYERS_AMOUNT
+    global ROOM_ID
+    global ORDER_BY
+    global USE_PRETTYTABLE
+    global SHOW_HISTORY_SCORE
+    global COOKIE
+    global HEADER
+    cp = configparser.ConfigParser()
+    cp.read('f.conf')
+    MIN_SALARY_SUM = int(cp.get('filter', 'min_salary_sum'))
+    MAX_SALARY_SUM = int(cp.get('filter', 'max_salary_sum'))
+    MIN_SALARY = int(cp.get('filter', 'min_salary'))
+    MAX_SALARY = int(cp.get('filter', 'max_salary'))
+    MAX_SALARY_DIFF = int(cp.get('filter', 'max_salary_diff'))
+    MIN_SCORE = int(cp.get('filter', 'min_score'))
+    MIN_PLAYTIME = int(cp.get('filter', 'min_playtime'))
+    AVOID_PLAYERS = [] if cp.get('filter', 'avoid_players') == '' else cp.get('filter', 'avoid_players').split(',')
+    PRESERVE_PLAYERS = [] if cp.get('filter', 'preserve_players') == '' else cp.get('filter', 'preserve_players').split(',')
+    SHOW_PLAYERS_AMOUNT = int(cp.get('display', 'show_players_amount'))
+    ROOM_ID = int(cp.get('display', 'room_id'))
+    ORDER_BY = int(cp.get('display', 'order_by'))
+    USE_PRETTYTABLE = int(cp.get('display', 'use_prettytable'))
+    SHOW_HISTORY_SCORE = int(cp.get('display', 'show_history_score'))
+    COOKIE = cp.get('others', 'cookie')
+    HEADER = {'Cookie': COOKIE}
+
+
 def run():
+    load_configuration()
     rid = None
     if ROOM_ID == 0:
         rid = get_current_roomid()
