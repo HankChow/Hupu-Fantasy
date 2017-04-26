@@ -137,6 +137,17 @@ def get_history_score_by_team(pids, game_date):
         exit()
 
 
+# 获取球员数据
+def get_players_data(player_list):
+    players_data = []
+    for player in player_list:
+        url = 'https://fantasy.hupu.com/api/player/data/{0}'.format(player)
+        player_data = requests.get(url).text 
+        player_json = json.loads(player_data)
+        players_data.append(player_json['data'])
+    return players_data
+
+
 # 显示推荐条件
 def show_conditions():
     if MIN_SALARY_SUM > 0 and MAX_SALARY_SUM > 0:
