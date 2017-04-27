@@ -53,7 +53,10 @@ def parse_data(roomid, position):
             (1 if MAX_SALARY == 0 else int(player['salary']) <= MAX_SALARY) and \
             (1 if MIN_SALARY == 0 else int(player['salary']) >= MIN_SALARY) and \
             (1 if MIN_PLAYTIME == 0 else int(player['play_time']) >= MIN_PLAYTIME):
-            player_list.append({'id': player['id'], 'name': player['name'], 'salary': int(player['salary']), 'score': float(player['fantasy_score']), 'positions': player['positions'], 'injury': int(player['injuryStatus']), 'playtime': int(player['play_time'])})
+            to_append = {'id': player['id'], 'name': player['name'], 'salary': int(player['salary']), 'score': float(player['fantasy_score']), 'positions': player['positions'], 'injury': int(player['injuryStatus']), 'playtime': int(player['play_time'])}
+            if ORDER_BY == 3:
+                to_append['score'] = float(get_players_data([to_append['id']])[0]['player_info']['ability'])
+            player_list.append(to_append)
         if int(player['start_time']) > max_timestamp:
             max_timestamp = int(player['start_time'])
     parsed_dict['player_list'] = player_list
@@ -213,8 +216,6 @@ def run():
     s4 = shrink(parse_data(rid, 4)['player_list'])
     s5 = shrink(parse_data(rid, 5)['player_list'])
     game_date = parse_data(rid, 1)['game_date']
-    total_progress = len(s1) * len(s2) * len(s3) * len(s4) * len(s5) 
-    current_progress = 0
     for l1 in s1:
         for l2 in s2:
             for l3 in s3:
@@ -234,10 +235,10 @@ def run():
                             round(l1['score'] + l2['score'] + l3['score'] + l4['score'] + l5['score'], 1), \
                             (l1['playtime'] + l2['playtime'] + l3['playtime'] + l4['playtime'] + l5['playtime']), \
                             (round(calculate_efficiency(l1['score'], l1['playtime']) + calculate_efficiency(l2['score'], l2['playtime']) + calculate_efficiency(l3['score'], l3['playtime']) + calculate_efficiency(l4['score'], l4['playtime']) + calculate_efficiency(l5['score'], l5['playtime']), 3))]) 
-    order_index = [6, 7, 8]
+    order_index = [6, 7, 8, 6]
     posible = sorted(posible, key=lambda x:-x[order_index[ORDER_BY]])
     if USE_PRETTYTABLE:
-        order_table_head = ['总评分', '总时间', '总效率']
+        order_table_head = ['总评分', '总时间', '总效率', 'ability']
         table_head = ['控球后卫', '得分后卫', '小前锋', '大前锋', '中锋', '总身价', order_table_head[ORDER_BY]]
         if SHOW_HISTORY_SCORE and int(ROOM_ID) > 0 and int(ROOM_ID) != int(curr_id):
             table_head.append('实际得分')
