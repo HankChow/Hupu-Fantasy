@@ -34,7 +34,7 @@ def get_players(roomid):
     if roomid is None:
         print('本日无范特西。。。')
         exit()
-    os.system('rm {0}/plrs/*.plr'.format(roomid))
+    os.system('rm {0}/plrs/{1}-*.plr'.format(sys.path[0], roomid))
     for i in range(1, 6):
         url = 'https://fantasy.hupu.com/api/player/candidates/{0}/{1}'.format(roomid, i)
         os.system('wget {0} -O {1}/plrs/{2}-{3}.plr'.format(url, sys.path[0], roomid, i))
