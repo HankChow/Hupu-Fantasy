@@ -11,8 +11,10 @@ import time
 from prettytable import PrettyTable
 
 
-# 获取当天金豆场房间id
 def get_current_roomid():
+    """
+    获取当天金豆场房间id
+    """
 
     url = 'https://fantasy.hupu.com/api/schedule/normal'
     r = requests.post(url, headers=HEADER)
@@ -29,9 +31,12 @@ def get_current_roomid():
             return i['id']
 
 
-# 根据当天的金豆房间id拉取当天参赛球员数据
-# 按照号位保存在当前路径下
 def get_players(roomid):
+    """
+    根据当天的金豆房间id拉取当天参赛球员数据
+    按照号位保存在当前路径下
+    roomid: 金豆房间id
+    """
 
     if roomid is None:
         print('本日无范特西。。。')
@@ -42,8 +47,13 @@ def get_players(roomid):
         os.system('wget {0} -O {1}/plrs/{2}-{3}.plr'.format(url, sys.path[0], roomid, i))
 
 
-# 读取球员数据文件，解析json，存放到list中，每名球员为一个dict
 def parse_data(roomid, position):
+    """
+    读取球员数据文件，解析 JSON ，存放到 list 中
+    每名球员为一个 dict
+    roomid: 金豆房间id
+    position: 球员号位，枚举值1,2,3,4,5
+    """
 
     path = '{0}/plrs/{1}-{2}.plr'.format(sys.path[0], roomid, position)
     player_data = json.load(open(path))['data']
@@ -69,9 +79,12 @@ def parse_data(roomid, position):
     return parsed_dict
 
 
-# 压缩list
-# 两个球员a、b，若Wealth(a) > Wealth(b)且Cost(a) < Cost(b)，则可以把球员剔出考虑范围
 def shrink(player_list):
+    """
+    压缩 list
+    两个球员a、b，若Wealth(a) > Wealth(b)且Cost(a) < Cost(b)，则可以把球员剔出考虑范围
+    player_list: 球员列表，为 list
+    """
 
     dels = []
     preserves = []
@@ -94,8 +107,12 @@ def shrink(player_list):
     return new_list
 
 
-# 将球员id转换为球员名
 def find_name_by_pid(roomid, pid):
+    """
+    将球员 id 转换为球员名
+    roomid: 金豆房间 id（用以区分不同日期时球员的不同数值）
+    pid: 球员 id
+    """
 
     all_players = []
     all_players.extend(parse_data(roomid, 1)['player_list'])
@@ -108,8 +125,12 @@ def find_name_by_pid(roomid, pid):
             return '{0}({1})'.format(i['name'], i['salary'])
 
 
-# 查询历史得分
 def get_history_score_by_team(pids, game_date):
+    """
+    查询历史得分
+    pid: 球员 id
+    game_date: 比赛日期
+    """
 
     if len(pids) == 5:
         total_score = 0
@@ -126,8 +147,11 @@ def get_history_score_by_team(pids, game_date):
         exit()
 
 
-# 获取球员数据
 def get_players_data(player_list):
+    """
+    获取球员数据
+    player_list: 球员信息源数据，为 list
+    """
 
     players_data = []
     for player in player_list:
@@ -139,8 +163,10 @@ def get_players_data(player_list):
     return players_data
 
 
-# 显示推荐条件
 def show_conditions():
+    """
+    显示推荐条件
+    """
 
     if MIN_SALARY_SUM > 0 and MAX_SALARY_SUM > 0:
         print('队内工资总和范围：[{0}, {1}]'.format(MIN_SALARY_SUM, MAX_SALARY_SUM))
@@ -154,8 +180,12 @@ def show_conditions():
         print('保留球员为：{0}'.format(PRESERVE_PLAYERS))
 
 
-# 计算球员评分效率
 def calculate_efficiency(score, playtime):
+    """
+    计算球员评分效率
+    score: 球员得分
+    playtime: 球员上场时间
+    """
 
     if int(playtime) == 0:
         return 0
@@ -163,8 +193,11 @@ def calculate_efficiency(score, playtime):
         return score / playtime
 
 
-# 自写list去重
 def unique(lst):
+    """
+    自写 list 去重
+    lst: 输入的 list
+    """
 
     newlst = []
     for x in lst:
@@ -174,8 +207,10 @@ def unique(lst):
     return newlst
 
 
-# 加载配置文件
 def load_configuration():
+    """
+    加载配置文件
+    """
 
     global MIN_SALARY_SUM
     global MAX_SALARY_SUM
